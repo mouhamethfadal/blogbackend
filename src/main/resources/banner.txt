@@ -8,4 +8,4 @@
 :: Application Name :: ${spring.application.name}
 :: Spring Boot Version :: ${spring-boot.version}
 :: Active Profile :: ${spring.profiles.active}
-====================================================================================
+================================================================
