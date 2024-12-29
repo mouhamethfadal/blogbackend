@@ -1,0 +1,22 @@
+server:
+  port: ${BLOG_BACKEND_SERVER_PORT}
+
+spring:
+  application:
+    name: blogbackend
+  config:
+    import: "configserver:"
+  cloud:
+    config:
+      uri: ${CONFIG_SERVER_URI}
+      username: ${CONFIG_SERVER_USERNAME}
+      password: ${CONFIG_SERVER_PASSWORD}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,info
+  endpoint:
+    health:
+      show-details: always
