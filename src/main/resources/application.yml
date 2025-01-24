@@ -6,12 +6,13 @@ spring:
     name: blog-backend
   config:
     import:
-      - "configserver:"
+      - "optional:configserver:"
   cloud:
     config:
       uri: ${CONFIG_SERVER_URL}
       username: ${CONFIG_SERVER_USERNAME}
       password: ${CONFIG_SERVER_PASSWORD}
+      fail-fast: false
 
 management:
   endpoints:
@@ -21,3 +22,7 @@ management:
   endpoint:
     health:
       show-details: always
+
+jwt:
+  secret: token-signing-secret # Will be replaced by an environment variable
+  expiration-in-seconds: 432 # This value is for testing, will be replaced by a suitable number
