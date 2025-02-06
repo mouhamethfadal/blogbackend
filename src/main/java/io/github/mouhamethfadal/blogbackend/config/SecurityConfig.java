@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -80,18 +79,7 @@ public class SecurityConfig {
                                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                                 .ignoringRequestMatchers("/api/v1/auth/**"))
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/health", "/actuator/info").permitAll()
-                        .anyRequest().authenticated())
-                .headers(headers -> headers.contentSecurityPolicy(csp -> csp.policyDirectives("""
-                    default-src 'self';
-                    frame-ancestors 'none';
-                    script-src 'self';
-                    style-src 'self';
-                    img-src 'self' data:;
-                    connect-src 'self';
-                    font-src 'self';
-                    base-uri 'none';
-                    form-action 'self'
-                """)).contentTypeOptions(Customizer.withDefaults()));
+                        .anyRequest().authenticated());
     }
 
     @Bean
