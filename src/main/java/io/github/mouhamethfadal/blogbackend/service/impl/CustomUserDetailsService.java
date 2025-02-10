@@ -1,6 +1,6 @@
 package io.github.mouhamethfadal.blogbackend.service.impl;
 
-import io.github.mouhamethfadal.blogbackend.model.User;
+import io.github.mouhamethfadal.blogbackend.entity.User;
 import io.github.mouhamethfadal.blogbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

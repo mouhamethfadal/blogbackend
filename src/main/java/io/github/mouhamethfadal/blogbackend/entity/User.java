@@ -1,4 +1,4 @@
-package io.github.mouhamethfadal.blogbackend.model;
+package io.github.mouhamethfadal.blogbackend.entity;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
