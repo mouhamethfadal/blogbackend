@@ -1,6 +1,6 @@
 package io.github.mouhamethfadal.blogbackend.service.impl;
 
-import io.github.mouhamethfadal.blogbackend.model.User;
+import io.github.mouhamethfadal.blogbackend.entity.User;
 import io.github.mouhamethfadal.blogbackend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
