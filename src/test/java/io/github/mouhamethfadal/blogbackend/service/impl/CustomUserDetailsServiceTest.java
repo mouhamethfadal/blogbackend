@@ -96,7 +96,7 @@ class CustomUserDetailsServiceTest {
         User user = User.builder()
                 .username(username)
                 .password(password)
-                .roles(Set.of())
+                .roles(Set.of(Role.ROLE_USER))
                 .build();
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
