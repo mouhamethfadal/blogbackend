@@ -49,7 +49,7 @@ class JwtServiceImplTest {
     class GenerateTokenTests {
         @Test
         @DisplayName("Should generate valid token with correct claims")
-        void shouldGenerateValidTokenWithCorrectClaims() {
+        void generateToken_WhenUserDetailsAreValid_ShouldGenerateValidTokenWithClaims() {
             // Act
             String token = jwtService.generateToken(authentication);
 
@@ -63,7 +63,7 @@ class JwtServiceImplTest {
 
     @Test
     @DisplayName("Should throw an exception when authentication is null")
-    void shouldThrowExceptionWhenAuthenticationIsNull() {
+    void generateToken_WhenAuthenticationIsNull_ShouldThrowException() {
         // Arrange
         when(authentication.getPrincipal()).thenReturn(null);
 
@@ -73,7 +73,7 @@ class JwtServiceImplTest {
 
     @Test
     @DisplayName("Should generate different tokens for different users")
-    void shouldGenerateDifferentTokensForDifferentUsers() {
+    void generateToken_WhenUsersAreDifferent_ShouldGenerateDifferentTokens() {
         // Arrange
         UserDetails user1 = new User("user1", "password1", Collections.emptyList());
         UserDetails user2 = new User("user2", "password2", Collections.emptyList());
@@ -94,7 +94,7 @@ class JwtServiceImplTest {
     class TokenValidationTests {
         @Test
         @DisplayName("Should validate correct token")
-        void shouldValidateCorrectToken() {
+        void validateToken_WhenTokenIsValid_ShouldReturnTrue() {
             // Act
             String token = jwtService.generateToken(authentication);
 
@@ -104,7 +104,7 @@ class JwtServiceImplTest {
 
         @Test
         @DisplayName("Should return false when token is expired")
-        void shouldRejectExpiredToken() {
+        void validateToken_WhenTokenIsExpired_ShouldReturnFalse() {
             // Arrange
             when(jwtProperties.getExpirationInSeconds()).thenReturn(1L);
 
@@ -122,27 +122,27 @@ class JwtServiceImplTest {
 
         @Test
         @DisplayName("Should return false when token is malformed")
-        void shouldRejectMalformedToken() {
+        void validateToken_WhenTokenIsMalformed_ShouldReturnFalse() {
             // Act and Assert
             assertThat(jwtService.validateToken("malformed.token")).isFalse();
         }
 
         @Test
         @DisplayName("Should return false when token is empty")
-        void shouldRejectEmptyToken() {
+        void validateToken_WhenTokenIsEmpty_ShouldReturnFalse() {
             // Act and Assert
             assertThat(jwtService.validateToken("")).isFalse();
         }
 
         @Test
         @DisplayName("Should return false when token is null")
-        void shouldRejectNullToken() {
+        void validateToken_WhenTokenIsNull_ShouldReturnFalse() {
             assertThat(jwtService.validateToken(null)).isFalse();
         }
 
         @Test
         @DisplayName("Should return false when token has invalid signature")
-        void shouldRejectInvalidSignature() {
+        void validateToken_WhenSignatureIsInvalid_ShouldReturnFalse() {
             // Arrange
             String token = jwtService.generateToken(authentication);
             when(jwtProperties.getSecret()).thenReturn(DIFFERENT_SECRET_KEY);
@@ -153,7 +153,7 @@ class JwtServiceImplTest {
 
         @Test
         @DisplayName("Should return false when token is unsupported")
-        void shouldRejectUnsupportedToken() {
+        void validateToken_WhenTokenIsUnsupported_ShouldReturnFalse() {
             // Arrange
             String token = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0." +
                     "eyJzdWIiOiJ1c2VyIiwiZXhwIjo5OTk5OTk5OTk5fQ.";
@@ -164,7 +164,7 @@ class JwtServiceImplTest {
 
         @Test
         @DisplayName("Should return false for generic exception")
-        void shouldReturnFalseForGenericException() {
+        void validateToken_WhenGenericExceptionOccurs_ShouldReturnFalse() {
             // Arrange
             when(jwtProperties.getSecret()).thenThrow(new RuntimeException());
 
@@ -178,7 +178,7 @@ class JwtServiceImplTest {
     class UsernameExtractionTests {
         @Test
         @DisplayName("Should extract correct username from valid token")
-        void shouldExtractCorrectUsernameFromValidToken() {
+        void extractUsername_WhenTokenIsValid_ShouldReturnCorrectUsername() {
             // Act
             String token = jwtService.generateToken(authentication);
 
@@ -189,14 +189,14 @@ class JwtServiceImplTest {
 
         @Test
         @DisplayName("Should throw exception when extracting username for invalid token")
-        void shouldThrowExceptionWhenExtractingUsernameFromInvalidToken() {
+        void extractUsername_WhenTokenIsInvalid_ShouldThrowException() {
             // Act and Assert
             assertThatThrownBy(() -> jwtService.getUsernameFromToken("invalid.token")).isInstanceOf(RuntimeException.class);
         }
 
         @Test
         @DisplayName("Should throw exception when extracting username for null token")
-        void shouldThrowExceptionWhenExtractingUsernameFromNullToken() {
+        void extractUsername_WhenTokenIsNull_ShouldThrowException() {
             // Act and Assert
             assertThatThrownBy(() -> jwtService.getUsernameFromToken(null)).isInstanceOf(IllegalArgumentException.class);
         }
