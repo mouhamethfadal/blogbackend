@@ -1,5 +1,6 @@
 package io.github.mouhamethfadal.blogbackend.service.impl;
 
+import io.github.mouhamethfadal.blogbackend.entity.Role;
 import io.github.mouhamethfadal.blogbackend.entity.User;
 import io.github.mouhamethfadal.blogbackend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -10,8 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,7 +34,7 @@ class CustomUserDetailsServiceTest {
         User user = User.builder()
                 .username(username)
                 .password(password)
-                .roles(List.of("USER", "ADMIN"))
+                .roles(Set.of(Role.ROLE_USER, Role.ROLE_ADMIN))
                 .build();
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
@@ -71,7 +72,7 @@ class CustomUserDetailsServiceTest {
         User user = User.builder()
                 .username(username)
                 .password(password)
-                .roles(List.of())
+                .roles(Set.of())
                 .build();
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
@@ -95,7 +96,7 @@ class CustomUserDetailsServiceTest {
         User user = User.builder()
                 .username(username)
                 .password(password)
-                .roles(List.of("USER"))
+                .roles(Set.of())
                 .build();
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
