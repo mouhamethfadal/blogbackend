@@ -23,11 +23,13 @@ public class MongoConfig {
 
     @PostConstruct
     public void logMongoSettings() {
-        log.info("MongoDB Configurations:");
-        String maskedUri = uri.replaceAll("://[^:]*:[^@]*@", "://*****:*****@");
-        log.info("URI: {}", maskedUri);
-        String dbName = uri.substring(uri.lastIndexOf("/") + 1);
-        log.info("Database name: {}", dbName);
+        if (uri != null) {
+            log.info("MongoDB Configurations:");
+            String maskedUri = uri.replaceAll("://[^:]*:[^@]*@", "://*****:*****@");
+            log.info("URI: {}", maskedUri);
+            String dbName = uri.substring(uri.lastIndexOf("/") + 1);
+            log.info("Database name: {}", dbName);
+        }
     }
 
     @EventListener(RefreshScopeRefreshedEvent.class)
