@@ -1,6 +1,6 @@
-package io.github.mouhamethfadal.blogbackend.repository;
+package io.github.mouhamethfadal.blogbackend.repositories;
 
-import io.github.mouhamethfadal.blogbackend.entity.User;
+import io.github.mouhamethfadal.blogbackend.entities.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
