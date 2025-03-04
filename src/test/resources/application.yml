@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+  application:
+    name: blog-backend
+  data:
+    mongodb:
+      database: test
+      port: 0
+      host: localhost
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 6.0.5
+
