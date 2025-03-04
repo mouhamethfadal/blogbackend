@@ -14,4 +14,12 @@
     <springProfile name="prod">
         <logger name="io.github.mouhamethfadal.blogbackend" level="INFO"/>
     </springProfile>
+
+    <springProfile name="test">
+        <logger name="io.github.mouhamethfadal.blogbackend" level="DEBUG"/>
+        <logger name="de.flapdoodle.embed.mongo" level="DEBUG"/>
+        <logger name="org.springframework.boot.autoconfigure.mongo" level="DEBUG"/>
+        <logger name="org.springframework.data.mongodb" level="DEBUG"/>
+        <logger name="org.springframework.cloud.config" level="DEBUG"/>
+    </springProfile>
 </configuration>
