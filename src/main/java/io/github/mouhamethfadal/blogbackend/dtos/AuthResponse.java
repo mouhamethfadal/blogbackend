@@ -1,4 +1,4 @@
-package io.github.mouhamethfadal.blogbackend.dto;
+package io.github.mouhamethfadal.blogbackend.dtos;
 
 import lombok.Builder;
 import lombok.Data;

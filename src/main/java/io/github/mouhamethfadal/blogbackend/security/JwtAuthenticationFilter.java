@@ -1,6 +1,6 @@
 package io.github.mouhamethfadal.blogbackend.security;
 
-import io.github.mouhamethfadal.blogbackend.service.JwtService;
+import io.github.mouhamethfadal.blogbackend.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

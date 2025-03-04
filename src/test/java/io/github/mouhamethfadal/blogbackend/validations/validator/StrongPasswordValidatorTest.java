@@ -1,4 +1,4 @@
-package io.github.mouhamethfadal.blogbackend.validation.validator;
+package io.github.mouhamethfadal.blogbackend.validations.validator;
 
 import jakarta.validation.ConstraintValidatorContext;
 import org.junit.jupiter.api.BeforeEach;

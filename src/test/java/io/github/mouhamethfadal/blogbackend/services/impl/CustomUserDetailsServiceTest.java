@@ -1,8 +1,8 @@
-package io.github.mouhamethfadal.blogbackend.service.impl;
+package io.github.mouhamethfadal.blogbackend.services.impl;
 
-import io.github.mouhamethfadal.blogbackend.entity.Role;
-import io.github.mouhamethfadal.blogbackend.entity.User;
-import io.github.mouhamethfadal.blogbackend.repository.UserRepository;
+import io.github.mouhamethfadal.blogbackend.entities.Role;
+import io.github.mouhamethfadal.blogbackend.entities.User;
+import io.github.mouhamethfadal.blogbackend.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
