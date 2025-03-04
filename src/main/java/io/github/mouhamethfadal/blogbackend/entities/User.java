@@ -1,4 +1,4 @@
-package io.github.mouhamethfadal.blogbackend.entity;
+package io.github.mouhamethfadal.blogbackend.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

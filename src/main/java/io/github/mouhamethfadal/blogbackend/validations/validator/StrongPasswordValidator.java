@@ -1,6 +1,6 @@
-package io.github.mouhamethfadal.blogbackend.validation.validator;
+package io.github.mouhamethfadal.blogbackend.validations.validator;
 
-import io.github.mouhamethfadal.blogbackend.validation.annotation.StrongPassword;
+import io.github.mouhamethfadal.blogbackend.validations.annotation.StrongPassword;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

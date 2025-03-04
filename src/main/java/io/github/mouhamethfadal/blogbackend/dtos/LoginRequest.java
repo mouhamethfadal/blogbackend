@@ -1,4 +1,4 @@
-package io.github.mouhamethfadal.blogbackend.dto;
+package io.github.mouhamethfadal.blogbackend.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

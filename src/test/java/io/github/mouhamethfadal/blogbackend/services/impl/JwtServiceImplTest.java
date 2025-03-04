@@ -1,4 +1,4 @@
-package io.github.mouhamethfadal.blogbackend.service.impl;
+package io.github.mouhamethfadal.blogbackend.services.impl;
 
 import io.github.mouhamethfadal.blogbackend.config.JwtProperties;
 import org.junit.jupiter.api.BeforeEach;

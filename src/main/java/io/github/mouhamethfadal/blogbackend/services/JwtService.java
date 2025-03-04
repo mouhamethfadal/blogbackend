@@ -1,4 +1,4 @@
-package io.github.mouhamethfadal.blogbackend.service;
+package io.github.mouhamethfadal.blogbackend.services;
 
 
 import org.springframework.security.core.Authentication;

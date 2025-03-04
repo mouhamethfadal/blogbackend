@@ -1,7 +1,7 @@
-package io.github.mouhamethfadal.blogbackend.service.impl;
+package io.github.mouhamethfadal.blogbackend.services.impl;
 
-import io.github.mouhamethfadal.blogbackend.entity.User;
-import io.github.mouhamethfadal.blogbackend.repository.UserRepository;
+import io.github.mouhamethfadal.blogbackend.entities.User;
+import io.github.mouhamethfadal.blogbackend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

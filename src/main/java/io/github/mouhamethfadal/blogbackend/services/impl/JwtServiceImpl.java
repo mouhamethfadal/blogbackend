@@ -1,7 +1,7 @@
-package io.github.mouhamethfadal.blogbackend.service.impl;
+package io.github.mouhamethfadal.blogbackend.services.impl;
 
 import io.github.mouhamethfadal.blogbackend.config.JwtProperties;
-import io.github.mouhamethfadal.blogbackend.service.JwtService;
+import io.github.mouhamethfadal.blogbackend.services.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
