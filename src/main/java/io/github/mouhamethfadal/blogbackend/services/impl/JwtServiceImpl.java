@@ -31,7 +31,7 @@ public class JwtServiceImpl implements JwtService {
         log.debug("Generating token for user {}", userDetails.getUsername());
 
         Date issuedAt = new Date();
-        Date expiration = new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(jwtProperties.getExpirationInSeconds()));
+        Date expiration = new Date(issuedAt.getTime() + TimeUnit.SECONDS.toMillis(jwtProperties.getExpirationInSeconds()));
 
         String token = Jwts.builder()
                 .subject(userDetails.getUsername())
