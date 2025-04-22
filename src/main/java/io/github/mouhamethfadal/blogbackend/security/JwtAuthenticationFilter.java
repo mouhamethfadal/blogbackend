@@ -41,8 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authentication.setDetails(new WebAuthenticationDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            //FIXME: Remove this log after testing
-            log.debug("Authentication successful - authentication object: {}", authentication);
         }
 
         filterChain.doFilter(request, response);

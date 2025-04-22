@@ -26,5 +26,15 @@ management:
       show-details: always
 
 jwt:
-  secret: token-signing-secret # Will be replaced by an environment variable
-  expiration-in-seconds: 432 # This value is for testing, will be replaced by a suitable number
+  secret: ${JWT_SECRET}
+  expiration-in-seconds: ${JWT_EXPIRATION}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    filter: true
+    tryItOutEnabled: true
