@@ -15,7 +15,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataMongoTest
-class UserRepositoryIntegrationTest {
+class UserRepositoryIT {
     @Autowired
     private UserRepository userRepository;
 
