@@ -46,6 +46,10 @@ public class AuthController {
                     responseCode = "409",
                     description = "Username/email already exists",
                     ref = "Conflict"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    ref = "BadRequest"
             )
     })
     @PostMapping("/register")
