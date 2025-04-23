@@ -14,6 +14,6 @@ public class RegisterRequest {
     @Email(message = "Email should be valid")
     private String email;
 
-    @StrongPassword(message = "Password must have 8+ with at least: 1 uppercase, 1 lowercase, 1 number, 1 special char")
+    @StrongPassword(message = "Password must have 8+ characters with at least: 1 uppercase, 1 lowercase, 1 number, 1 special char")
     private String password;
 }
