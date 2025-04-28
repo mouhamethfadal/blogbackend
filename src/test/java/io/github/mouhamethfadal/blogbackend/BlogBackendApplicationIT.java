@@ -1,10 +1,8 @@
 package io.github.mouhamethfadal.blogbackend;
 
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@Tag("localOnly")
 @SpringBootTest
 class BlogBackendApplicationIT {
 	/**
