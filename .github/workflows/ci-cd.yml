@@ -26,6 +26,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: 'maven'
 
       - name: Build the project
         run: mvn -B clean compile
@@ -50,6 +51,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: 'maven'
 
       - name: Download compiled classes
         uses: actions/download-artifact@v4
@@ -58,7 +60,7 @@ jobs:
           path: target/
 
       - name: Run Unit Tests
-        run: mvn -B test
+        run: mvn -B test -Dmaven.compile.skip=true
 
   integration-tests:
     name: Run Integration Tests
@@ -74,15 +76,16 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: 'maven'
 
-      - name: Prepare database or services
-        run: |
-          echo "Start docker containers or services if needed"
-          # docker-compose up -d
-          # sleep 20 # wait for database
+      - name: Download compiled classes
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-classes
+          path: target/
 
       - name: Run Integration Tests
-        run: mvn -B verify -Pintegration-tests
+        run: mvn -B verify -Pintegration-tests -Dmaven.compile.skip=true
 
   sonarcloud-analysis:
     name: Analyze with SonarCloud
@@ -98,9 +101,16 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Download compiled classes
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-classes
+          path: target/
 
       - name: Cache SonarCloud packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
@@ -109,6 +119,7 @@ jobs:
       - name: Analyze Code with SonarCloud
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dmaven.compile.skip=true \
             -Dsonar.projectKey=mouhamethfadal_blogbackend \
             -Dsonar.organization=mouhamethfadal \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
