@@ -1,9 +1,9 @@
 package io.github.mouhamethfadal.blogbackend.services;
 
 
-import io.github.mouhamethfadal.blogbackend.dtos.AuthResponse;
-import io.github.mouhamethfadal.blogbackend.dtos.LoginRequest;
-import io.github.mouhamethfadal.blogbackend.dtos.RegisterRequest;
+import io.github.mouhamethfadal.blogbackend.dtos.response.AuthResponse;
+import io.github.mouhamethfadal.blogbackend.dtos.request.LoginRequest;
+import io.github.mouhamethfadal.blogbackend.dtos.request.RegisterRequest;
 
 public interface AuthService {
 
