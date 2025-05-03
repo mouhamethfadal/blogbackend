@@ -1,8 +1,8 @@
 package io.github.mouhamethfadal.blogbackend.services.impl;
 
-import io.github.mouhamethfadal.blogbackend.dtos.AuthResponse;
-import io.github.mouhamethfadal.blogbackend.dtos.LoginRequest;
-import io.github.mouhamethfadal.blogbackend.dtos.RegisterRequest;
+import io.github.mouhamethfadal.blogbackend.dtos.response.AuthResponse;
+import io.github.mouhamethfadal.blogbackend.dtos.request.LoginRequest;
+import io.github.mouhamethfadal.blogbackend.dtos.request.RegisterRequest;
 import io.github.mouhamethfadal.blogbackend.entities.Role;
 import io.github.mouhamethfadal.blogbackend.entities.User;
 import io.github.mouhamethfadal.blogbackend.exceptions.EmailAlreadyExistsException;

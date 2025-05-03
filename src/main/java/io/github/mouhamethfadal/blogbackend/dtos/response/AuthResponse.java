@@ -1,4 +1,4 @@
-package io.github.mouhamethfadal.blogbackend.dtos;
+package io.github.mouhamethfadal.blogbackend.dtos.response;
 
 import lombok.Builder;
 import lombok.Data;

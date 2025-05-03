@@ -1,4 +1,4 @@
-package io.github.mouhamethfadal.blogbackend.dtos;
+package io.github.mouhamethfadal.blogbackend.dtos.request;
 
 import io.github.mouhamethfadal.blogbackend.validations.annotation.StrongPassword;
 import jakarta.validation.constraints.Email;
