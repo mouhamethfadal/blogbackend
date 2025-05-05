@@ -21,13 +21,33 @@ public class MongoConfig {
 
     @PostConstruct
     public void logMongoSettings() {
-        if (uri != null) {
-            log.info("MongoDB Configurations:");
-            String maskedUri = uri.replaceAll("://[^:]*:[^@]*@", "://*****:*****@");
-            log.info("URI: {}", maskedUri);
-            String dbName = uri.substring(uri.lastIndexOf("/") + 1);
-            log.info("Database name: {}", dbName);
-        }
+      if(uri == null) {
+          log.warn("MongoDB URI is null");
+          return;
+      }
+
+      log.info("MongoDB Configurations:");
+
+      try {
+          String maskedUri = getMaskedUri();
+          log.info("URI: {}", maskedUri);
+
+          int lastSlashIndex = uri.lastIndexOf("/");
+
+          String dbName = getDbName(lastSlashIndex);
+          log.info("Database name: {}", dbName);
+      } catch(Exception e) {
+          log.warn("Fail to parse MongoDB URI: {}", e.getMessage());
+      }
+
+    }
+
+    private String getDbName(int lastSlashIndex) {
+        return lastSlashIndex >= 0 && lastSlashIndex < uri.length() - 1 ? uri.substring(lastSlashIndex + 1) : "";
+    }
+
+    protected String getMaskedUri() {
+        return uri.replaceAll("://[^:]*:[^@]*@", "://*****:*****@");
     }
 
     @EventListener(RefreshScopeRefreshedEvent.class)
