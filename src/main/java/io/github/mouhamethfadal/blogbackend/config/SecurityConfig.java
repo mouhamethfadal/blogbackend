@@ -2,6 +2,7 @@ package io.github.mouhamethfadal.blogbackend.config;
 
 
 import io.github.mouhamethfadal.blogbackend.security.JwtAuthenticationFilter;
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@Generated
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final Environment environment;
