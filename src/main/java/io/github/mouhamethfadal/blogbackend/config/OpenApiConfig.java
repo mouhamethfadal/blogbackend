@@ -13,6 +13,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -61,6 +62,7 @@ import java.util.ArrayList;
 )
 
 @Slf4j
+@Generated
 public class OpenApiConfig {
 
     @Bean
