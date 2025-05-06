@@ -58,36 +58,38 @@ class JwtServiceImplTest {
             assertThat(jwtService.validateToken(token)).isTrue();
             assertThat(jwtService.getUsernameFromToken(token)).isEqualTo(USERNAME);
         }
+
+        @Test
+        @DisplayName("Should throw an exception when authentication is null")
+        void generateToken_WhenAuthenticationIsNull_ShouldThrowException() {
+            // Arrange
+            when(authentication.getPrincipal()).thenReturn(null);
+
+            // Act and Assert
+            assertThatThrownBy(() -> jwtService.generateToken(authentication)).isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        @DisplayName("Should generate different tokens for different users")
+        void generateToken_WhenUsersAreDifferent_ShouldGenerateDifferentTokens() {
+            // Arrange
+            UserDetails user1 = new User("user1", "password1", Collections.emptyList());
+            UserDetails user2 = new User("user2", "password2", Collections.emptyList());
+
+            // Act
+            when(authentication.getPrincipal()).thenReturn(user1);
+            String token1 = jwtService.generateToken(authentication);
+
+            when(authentication.getPrincipal()).thenReturn(user2);
+            String token2 = jwtService.generateToken(authentication);
+
+            // Assert
+            assertThat(token1).isNotEqualTo(token2);
+        }
         
     }
 
-    @Test
-    @DisplayName("Should throw an exception when authentication is null")
-    void generateToken_WhenAuthenticationIsNull_ShouldThrowException() {
-        // Arrange
-        when(authentication.getPrincipal()).thenReturn(null);
 
-        // Act and Assert
-        assertThatThrownBy(() -> jwtService.generateToken(authentication)).isInstanceOf(NullPointerException.class);
-    }
-
-    @Test
-    @DisplayName("Should generate different tokens for different users")
-    void generateToken_WhenUsersAreDifferent_ShouldGenerateDifferentTokens() {
-        // Arrange
-        UserDetails user1 = new User("user1", "password1", Collections.emptyList());
-        UserDetails user2 = new User("user2", "password2", Collections.emptyList());
-
-        // Act
-        when(authentication.getPrincipal()).thenReturn(user1);
-        String token1 = jwtService.generateToken(authentication);
-
-        when(authentication.getPrincipal()).thenReturn(user2);
-        String token2 = jwtService.generateToken(authentication);
-
-        // Assert
-        assertThat(token1).isNotEqualTo(token2);
-    }
 
     @Nested
     @DisplayName("Token validation tests")
