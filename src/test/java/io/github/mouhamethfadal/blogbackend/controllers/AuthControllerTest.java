@@ -12,6 +12,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
@@ -22,6 +26,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.stream.Stream;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -114,7 +120,6 @@ class AuthControllerTest {
             invalidRegisterRequest.setPassword("passer");
 
             // Act and Assert
-            // Act and Assert
             mockMvc.perform(post("/api/v1/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(validRegisterRequest)))
@@ -122,6 +127,76 @@ class AuthControllerTest {
                     .andExpect(jsonPath(("$.message")).value("Password must have 8+ characters with at least: 1 uppercase, 1 lowercase, 1 number, 1 special char"));
 
         }
+    }
+
+    @DisplayName("User Registration validation")
+    @ParameterizedTest(name = "#{index} - {0}")
+    @MethodSource("invalidRegistrationCases")
+    void register_WithInvalidInput_ShouldReturnBadRequest (ArgumentsAccessor args) throws Exception {
+        // Arrange
+        RegisterRequest invalidRegisterRequest = new RegisterRequest();
+        invalidRegisterRequest.setUsername(args.getString(1));
+        invalidRegisterRequest.setPassword(args.getString(2));
+        invalidRegisterRequest.setEmail(args.getString(3));
+
+        // Act and Assert
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRegisterRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath(("$.message")).value(args.getString(4)));
+
+    }
+
+    static Stream<Arguments> invalidRegistrationCases() {
+        return Stream.of(
+                Arguments.of(
+                        "Weak password",
+                        "testUser",
+                        "pass",
+                        "testUser@example.com",
+                        "Password must have 8+ characters with at least: 1 uppercase, 1 lowercase, 1 number, 1 special char"
+                ),
+                Arguments.of(
+                        "Empty Username",
+                        "",
+                        "Password@123",
+                        "testUser@example.com",
+                        "Username should not be blank"
+                ),
+                Arguments.of(
+                        "Empty email",
+                        "testUser",
+                        "Password@123",
+                        "",
+                        "Email should not be blank"
+                ),
+
+                Arguments.of(
+                        "invalid email",
+                        "testUser",
+                        "Password@123",
+                        "invalid-email",
+                        "Email should be valid"
+                )
+
+        );
+    }
+
+    @Test
+    void register_WhenServerEncountersException_ShouldReturnInternalServerError() throws Exception {
+        // Arrange
+        String exceptionMessage = "Unexpected error";
+        when(authService.register(validRegisterRequest)).thenThrow(new RuntimeException(exceptionMessage));
+
+        // Act and Assert
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(validRegisterRequest)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath(("$.message")).value(exceptionMessage));
+
+
     }
 
     @Nested
@@ -156,6 +231,7 @@ class AuthControllerTest {
                     .andExpect(jsonPath(("$.message")).value("Bad credentials"));
         }
     }
+
 
 
 }

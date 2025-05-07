@@ -13,7 +13,7 @@ public class KeyGenerator {
 
     public static String generateKey() {
         SecureRandom random = new SecureRandom();
-        byte[] keyBytes = new byte[32]; // 256 bits
+        byte[] keyBytes = new byte[32];
         random.nextBytes(keyBytes);
         return Base64.getEncoder().encodeToString(keyBytes);
     }
