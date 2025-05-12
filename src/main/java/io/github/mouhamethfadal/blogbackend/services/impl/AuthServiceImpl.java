@@ -65,12 +65,6 @@ public class AuthServiceImpl implements AuthService {
         return user;
     }
 
-    private AuthResponse buildAuthResponse(String jwt, String username) {
-        return AuthResponse.builder()
-                .token(jwt)
-                .username(username)
-                .build();
-    }
 
     @Override
     public AuthResponse login(LoginRequest request) {
@@ -82,5 +76,12 @@ public class AuthServiceImpl implements AuthService {
         String jwt = jwtService.generateToken(authentication);
 
         return buildAuthResponse(jwt, request.getUsername());
+    }
+
+    private AuthResponse buildAuthResponse(String jwt, String username) {
+        return AuthResponse.builder()
+                .token(jwt)
+                .username(username)
+                .build();
     }
 }

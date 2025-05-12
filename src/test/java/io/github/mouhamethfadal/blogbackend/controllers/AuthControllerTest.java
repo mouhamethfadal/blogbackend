@@ -53,14 +53,16 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        validRegisterRequest = new RegisterRequest();
-        validRegisterRequest.setUsername("testUser");
-        validRegisterRequest.setPassword("testPassword@123");
-        validRegisterRequest.setEmail("testEmail@example.com");
+        validRegisterRequest = RegisterRequest.builder()
+                .username("testUser")
+                .password("testPassword@123")
+                .email("testEmail@example.com")
+                .build();
 
-        validLoginRequest = new LoginRequest();
-        validLoginRequest.setUsername("testUser");
-        validLoginRequest.setPassword("testPassword@123");
+        validLoginRequest = LoginRequest.builder()
+                .username("testUser")
+                .password("testPassword@123")
+                .build();
 
         authResponse = AuthResponse.builder()
                 .username("testUser")

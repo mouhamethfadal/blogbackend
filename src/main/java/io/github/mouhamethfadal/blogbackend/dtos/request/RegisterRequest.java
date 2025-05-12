@@ -3,9 +3,15 @@ package io.github.mouhamethfadal.blogbackend.dtos.request;
 import io.github.mouhamethfadal.blogbackend.validations.annotation.StrongPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RegisterRequest {
     @NotBlank(message = "Username should not be blank")
     private String username;
