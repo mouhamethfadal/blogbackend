@@ -69,6 +69,8 @@ public class SecurityConfig {
 
     private void configureDevelopmentSecurity(HttpSecurity http) throws Exception {
         http
+                // CSRF protection is disabled because this is a stateless API using JWT tokens for authentication,
+                // not cookies. CSRF protection isn't necessary in this context since we're not using session cookies.
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.
                         requestMatchers("/actuator/**", "/swagger-ui/**", "/swagger-ui.html", "/api-docs/**")
@@ -78,6 +80,8 @@ public class SecurityConfig {
 
     private void configureProductionSecurity(HttpSecurity http) throws Exception {
         http
+                // CSRF protection is disabled because this is a stateless API using JWT tokens for authentication,
+                // not cookies. CSRF protection isn't necessary in this context since we're not using session cookies.
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
