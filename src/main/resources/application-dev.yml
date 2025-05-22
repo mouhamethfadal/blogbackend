@@ -1,0 +1,15 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,info
+  endpoint:
+    health:
+      show-details: always
+
+spring:
+  devtools:
+    restart:
+      enabled: true
+    remote:
+      secret: pass
