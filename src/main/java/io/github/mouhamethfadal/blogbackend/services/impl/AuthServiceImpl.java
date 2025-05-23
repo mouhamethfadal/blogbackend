@@ -14,10 +14,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +37,7 @@ public class AuthServiceImpl implements AuthService {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = jwtService.generateToken(authentication);
 
@@ -53,11 +56,17 @@ public class AuthServiceImpl implements AuthService {
 
     private User createUser(RegisterRequest request) {
         boolean isFirstUser = userRepository.count() == 0;
+
+        Supplier<Set<Role>> roleSupplier = isFirstUser
+                ? () -> Set.of(Role.ROLE_ADMIN, Role.ROLE_USER)
+                : () -> Set.of(Role.ROLE_USER);
+
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .roles(isFirstUser ? Set.of(Role.ROLE_ADMIN, Role.ROLE_USER) : Set.of(Role.ROLE_USER))
+                .roles(roleSupplier.get())
+                .active(isFirstUser)
                 .build();
 
         userRepository.save(user);
@@ -72,6 +81,8 @@ public class AuthServiceImpl implements AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = jwtService.generateToken(authentication);
 
