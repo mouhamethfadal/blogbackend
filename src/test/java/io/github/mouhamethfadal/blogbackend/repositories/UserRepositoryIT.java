@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,7 +20,8 @@ class UserRepositoryIT {
     @Autowired
     private UserRepository userRepository;
 
-    private User testUser;
+    private User user1;
+    private User user2;
 
     @BeforeEach
     void setUp() {
@@ -27,9 +29,15 @@ class UserRepositoryIT {
 
         Set<Role> roles = new HashSet<>();
 
-        testUser = User.builder()
+        user1 = User.builder()
                 .username("testUser")
                 .email("testUser@test.com")
+                .password("test123")
+                .roles(roles)
+                .build();
+        user2 = User.builder()
+                .username("testUser2")
+                .email("testUser2@test.com")
                 .password("test123")
                 .roles(roles)
                 .build();
@@ -42,23 +50,23 @@ class UserRepositoryIT {
 
     @Test
     void save_WithValidUser_ShouldSaveUser() {
-        User savedUser = userRepository.save(testUser);
+        User savedUser = userRepository.save(user1);
 
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getId()).isNotNull();
-        assertThat(savedUser.getUsername()).isEqualTo(testUser.getUsername());
-        assertThat(savedUser.getEmail()).isEqualTo(testUser.getEmail());
+        assertThat(savedUser.getUsername()).isEqualTo(user1.getUsername());
+        assertThat(savedUser.getEmail()).isEqualTo(user1.getEmail());
     }
 
     @Test
     void findByUsername_WithValidUser_ShouldReturnUser() {
-        userRepository.save(testUser);
+        userRepository.save(user1);
 
-        Optional<User> foundUser = userRepository.findByUsername(testUser.getUsername());
+        Optional<User> foundUser = userRepository.findByUsername(user1.getUsername());
 
         assertThat(foundUser).isPresent();
-        assertThat(foundUser.get().getUsername()).isEqualTo(testUser.getUsername());
-        assertThat(foundUser.get().getEmail()).isEqualTo(testUser.getEmail());
+        assertThat(foundUser.get().getUsername()).isEqualTo(user1.getUsername());
+        assertThat(foundUser.get().getEmail()).isEqualTo(user1.getEmail());
     }
 
     @Test
@@ -69,10 +77,22 @@ class UserRepositoryIT {
     }
 
     @Test
-    void existsByUsername_WithValidUser_ShouldReturnTrue() {
-        userRepository.save(testUser);
+    void findAllUsers_ShouldReturnsAllUsers() {
+        // Arrange
+        userRepository.saveAll(List.of(user1, user2));
 
-        boolean exists = userRepository.existsByUsername(testUser.getUsername());
+        // Act
+        List<User> users = userRepository.findAll();
+
+        // Assert
+        assertThat(users).hasSize(2).containsExactlyInAnyOrder(user1, user2);
+    }
+
+    @Test
+    void existsByUsername_WithValidUser_ShouldReturnTrue() {
+        userRepository.save(user1);
+
+        boolean exists = userRepository.existsByUsername(user1.getUsername());
 
         assertThat(exists).isTrue();
     }
@@ -86,9 +106,9 @@ class UserRepositoryIT {
 
     @Test
     void existsByEmail_WithValidUser_ShouldReturnTrue() {
-        userRepository.save(testUser);
+        userRepository.save(user1);
 
-        boolean exists = userRepository.existsByEmail(testUser.getEmail());
+        boolean exists = userRepository.existsByEmail(user1.getEmail());
 
         assertThat(exists).isTrue();
     }
