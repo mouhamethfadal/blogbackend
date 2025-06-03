@@ -17,7 +17,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class UserMapperTestIT {
+class UserMapperIT {
     @Autowired
     private UserMapper userMapper;
     private User user;

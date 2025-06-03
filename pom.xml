@@ -202,17 +202,86 @@
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.12</version>
 				<executions>
+
+					<!-- UNIT TEST COVERAGE -->
 					<execution>
+						<id>prepare-agent-unit</id>
 						<goals>
 							<goal>prepare-agent</goal>
 						</goals>
+						<configuration>
+							<destFile>${project.build.directory}/jacoco-unit.exec</destFile>
+							<propertyName>surefireArgLine</propertyName>
+						</configuration>
 					</execution>
+
 					<execution>
-						<id>report</id>
+						<id>report-unit</id>
 						<phase>test</phase>
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco-unit.exec</dataFile>
+							<outputDirectory>${project.reporting.outputDirectory}/jacoco-unit</outputDirectory>
+						</configuration>
+					</execution>
+
+					<!-- INTEGRATION TEST COVERAGE -->
+					<execution>
+						<id>prepare-agent-integration</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>prepare-agent-integration</goal>
+						</goals>
+						<configuration>
+							<destFile>${project.build.directory}/jacoco-integration.exec</destFile>
+							<propertyName>failsafeArgLine</propertyName>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>report-integration</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>report-integration</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco-integration.exec</dataFile>
+							<outputDirectory>${project.reporting.outputDirectory}/jacoco-integration</outputDirectory>
+						</configuration>
+					</execution>
+
+					<!-- MERGED COVERAGE REPORT -->
+					<execution>
+						<id>merge-results</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>merge</goal>
+						</goals>
+						<configuration>
+							<fileSets>
+								<fileSet>
+									<directory>${project.build.directory}</directory>
+									<includes>
+										<include>*.exec</include>
+									</includes>
+								</fileSet>
+							</fileSets>
+							<destFile>${project.build.directory}/jacoco-merged.exec</destFile>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>report-merged</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
+							<outputDirectory>${project.reporting.outputDirectory}/jacoco-merged</outputDirectory>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -220,11 +289,40 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.5.3</version>
+				<configuration>
+					<!-- Include unit tests -->
+					<includes>
+						<include>**/*Test.java</include>
+					</includes>
+					<!-- Exclude integration tests from unit test phase -->
+					<excludes>
+						<exclude>**/*IT.java</exclude>
+					</excludes>
+					<!-- JaCoCo agent for unit test coverage -->
+					<argLine>${surefireArgLine}</argLine>
+					<!-- Parallel execution for faster tests -->
+					<parallel>methods</parallel>
+					<threadCount>4</threadCount>
+					<!-- Test result formatting -->
+					<printSummary>true</printSummary>
+					<failIfNoTests>false</failIfNoTests>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>3.5.3</version>
+				<configuration>
+					<!-- Include integration tests -->
+					<includes>
+						<include>**/*IT.java</include>
+					</includes>
+					<!-- JaCoCo agent for integration test coverage -->
+					<argLine>${failsafeArgLine}</argLine>
+					<!-- Test result formatting -->
+					<printSummary>true</printSummary>
+					<failIfNoTests>false</failIfNoTests>
+				</configuration>
 				<executions>
 					<execution>
 						<id>integration-test</id>
