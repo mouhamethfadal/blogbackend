@@ -8,6 +8,13 @@ on:
     branches:
       - develop
 
+permissions:
+  contents: read
+  issues: read
+  actions: read
+  checks: write
+  pull-requests: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -36,36 +43,12 @@ jobs:
         with:
           name: compiled-classes
           path: target/
+          retention-days: 1
 
   unit-tests:
     name: Run Unit Tests
     runs-on: ubuntu-latest
     needs: build
-    timeout-minutes: 10
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: Download compiled classes
-        uses: actions/download-artifact@v4
-        with:
-          name: compiled-classes
-          path: target/
-
-      - name: Run Unit Tests
-        run: mvn -B test -Dmaven.compile.skip=true
-
-  integration-tests:
-    name: Run Integration Tests
-    runs-on: ubuntu-latest
-    needs: unit-tests
     timeout-minutes: 15
 
     steps:
@@ -84,11 +67,76 @@ jobs:
           name: compiled-classes
           path: target/
 
-      - name: Run Integration Tests
-        run: mvn -B verify -Pintegration-tests -Dmaven.compile.skip=true
+      - name: Run Unit Tests with JaCoCo
+        run: mvn -B test -Dmaven.compile.skip=true -Dsurefire.useFile=true
 
-  sonarcloud-analysis:
-    name: Analyze with SonarCloud
+      - name: Upload Unit Test Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: |
+            target/jacoco-unit.exec
+            target/site/jacoco-unit/
+          retention-days: 1
+
+      - name: Upload Unit Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-results
+          path: target/surefire-reports/
+          retention-days: 1
+
+  integration-tests:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Download compiled classes
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-classes
+          path: target/
+
+      - name: Download unit test coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: target/
+
+      - name: Run Integration Tests with JaCoCo
+        run: mvn -B verify -Dmaven.compile.skip=true -Dskip.surefire.tests=true -Dfailsafe.useFile=true
+
+      - name: Upload Integration Test Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-coverage
+          path: |
+            target/jacoco-integration.exec
+            target/site/jacoco-integration/
+          retention-days: 1
+
+      - name: Upload Integration Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: target/failsafe-reports/
+          retention-days: 1
+
+  merge-coverage:
+    name: Merge Test Coverage Reports
     runs-on: ubuntu-latest
     needs: integration-tests
     timeout-minutes: 10
@@ -109,6 +157,74 @@ jobs:
           name: compiled-classes
           path: target/
 
+      - name: Download unit test coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: target/
+
+      - name: Download integration test coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: integration-test-coverage
+          path: target/
+
+      - name: Generate Merged Coverage Report
+        run: mvn -B verify -Dmaven.compile.skip=true -Dmaven.test.skip=true -Dmaven.integration-test.skip=true -Djacoco.skip=false
+
+      - name: Upload Merged Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-coverage-report
+          path: |
+            target/jacoco-merged.exec
+            target/site/jacoco-merged/
+          retention-days: 7
+
+  sonarcloud-analysis:
+    name: Analyze with SonarCloud
+    runs-on: ubuntu-latest
+    needs: merge-coverage
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clone disabled for better analysis
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Download compiled classes
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-classes
+          path: target/
+
+      - name: Download merged coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: merged-coverage-report
+          path: target/
+
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-test-results
+          path: target/surefire-reports/
+        continue-on-error: true
+
+      - name: Download integration test results
+        uses: actions/download-artifact@v4
+        with:
+          name: integration-test-results
+          path: target/failsafe-reports/
+        continue-on-error: true
+
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
@@ -118,15 +234,71 @@ jobs:
 
       - name: Analyze Code with SonarCloud
         run: |
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dmaven.compile.skip=true \
-            -Dsonar.projectKey=mouhamethfadal_blogbackend \
-            -Dsonar.organization=mouhamethfadal \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
-            -Dsonar.pullrequest.branch=${{ github.head_ref }} \
-            -Dsonar.pullrequest.base=${{ github.base_ref }}
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            mvn -B sonar:sonar \
+              -Dmaven.compile.skip=true \
+              -Dmaven.test.skip=true \
+              -Dsonar.projectKey=mouhamethfadal_blogbackend \
+              -Dsonar.organization=mouhamethfadal \
+              -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+              -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+              -Dsonar.pullrequest.branch=${{ github.head_ref }} \
+              -Dsonar.pullrequest.base=${{ github.base_ref }} \
+              -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco-merged/jacoco.xml \
+              -Dsonar.junit.reportPaths=target/surefire-reports,target/failsafe-reports
+          else
+            mvn -B sonar:sonar \
+              -Dmaven.compile.skip=true \
+              -Dmaven.test.skip=true \
+              -Dsonar.projectKey=mouhamethfadal_blogbackend \
+              -Dsonar.organization=mouhamethfadal \
+              -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+              -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco-merged/jacoco.xml \
+              -Dsonar.junit.reportPaths=target/surefire-reports,target/failsafe-reports
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         continue-on-error: ${{ github.event_name == 'pull_request' }}
+
+  publish-test-results:
+    name: Publish Test Results
+    runs-on: ubuntu-latest
+    needs: [ unit-tests, integration-tests ]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download unit test results
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-test-results
+          path: unit-test-results/
+        continue-on-error: true
+
+      - name: Download integration test results
+        uses: actions/download-artifact@v4
+        with:
+          name: integration-test-results
+          path: integration-test-results/
+        continue-on-error: true
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: (!cancelled())
+        with:
+          files: unit-test-results/TEST-*.xml
+          check_name: "Unit Test Results"
+          comment_title: "Unit Test Results"
+          comment_mode: always
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: (!cancelled())
+        with:
+          files: integration-test-results/TEST-*.xml
+          check_name: "Integration Test Results"
+          comment_title: "Integration Test Results"
+          comment_mode: always
