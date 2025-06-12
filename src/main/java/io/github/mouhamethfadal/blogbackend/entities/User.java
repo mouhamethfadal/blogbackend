@@ -19,7 +19,7 @@ public class User extends BaseAuditableEntity {
     private String username;
     private String email;
     private String password;
-    private boolean active;
+    private boolean enabled;
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 }
