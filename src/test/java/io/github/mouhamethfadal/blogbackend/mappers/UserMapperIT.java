@@ -60,7 +60,7 @@ class UserMapperIT {
 
         assertThat(fieldNames)
                 .doesNotContain("password")
-                .containsExactlyInAnyOrder("username", "email", "roles");
+                .containsExactlyInAnyOrder("username", "email", "enabled", "roles");
 
     }
 }

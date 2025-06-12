@@ -303,7 +303,7 @@
 					<!-- Parallel execution for faster tests -->
 					<parallel>methods</parallel>
 					<threadCount>4</threadCount>
-					<!-- Test result formatting -->
+					<!-- Test result formatting  -->
 					<printSummary>true</printSummary>
 					<failIfNoTests>false</failIfNoTests>
 				</configuration>

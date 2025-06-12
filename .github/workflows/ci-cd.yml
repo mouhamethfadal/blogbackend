@@ -231,7 +231,13 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-
+      - name: Debug - List coverage files
+        run: |
+          echo "Checking for coverage files..."
+          find target -name "*.exec" -type f
+          find target -name "jacoco.xml" -type f
+          ls -la target/site/jacoco-merged/ || echo "jacoco-merged directory not found"
+          
       - name: Analyze Code with SonarCloud
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
