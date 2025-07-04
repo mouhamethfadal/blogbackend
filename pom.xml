@@ -126,7 +126,7 @@
 			<version>${springdoc.version}</version>
 		</dependency>
 
-		<!-- Object Mapping -->
+		<!-- Object Mapping  -->
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
