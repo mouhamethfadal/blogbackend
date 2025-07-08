@@ -12,10 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -39,14 +36,17 @@ public class UserController {
                             schema = @Schema(implementation = User.class),
                             examples = @ExampleObject(
                                     value = """
-                                            [
-                                              {
-                                                "username": "john_doe",
-                                                "email": "john_doe@example.com",
-                                                "roles": ["ROLE_ADMIN", "ROLE_USER"]
-                                              }
-                                            ]
-                                            """
+                [
+                  {
+                    "username": "john_doe",
+                    "email": "john_doe@example.com",
+                    "enabled": false,
+                    "roles": ["ROLE_ADMIN", "ROLE_USER"]
+                  }
+                ]
+                """
+
+
                             )
                     )
             ),
@@ -77,12 +77,12 @@ public class UserController {
                             schema = @Schema(implementation = User.class),
                             examples = @ExampleObject(
                                     value = """
-                                              {
+                                            {
                                                 "username": "john_doe",
                                                 "email": "john_doe@example.com",
+                                                "enabled": false,
                                                 "roles": ["ROLE_ADMIN", "ROLE_USER"]
                                               }
-                                            
                                             """
                             )
                     )
@@ -106,4 +106,44 @@ public class UserController {
     ) {
         return userService.findUserByUsername(username);
     }
+
+    @Operation(
+            summary = "Enable a user by his username",
+            description = "Enable a registered user by his username"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User enabled",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = User.class),
+                            examples = @ExampleObject(
+                                    value = """
+                                              {
+                                                "username": "john_doe",
+                                                "email": "john_doe@example.com",
+                                                "enabled": true,
+                                                "roles": ["ROLE_ADMIN", "ROLE_USER"]
+                                              }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    ref = "Forbidden"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    ref = "NotFound"
+            )
+    })
+    @PutMapping("/{username}/enable")
+    public UserDto enableUser(
+            @Parameter(description = "Username of the user to enable", example = "john_doe", required = true) @PathVariable String username
+    ) {
+        return userService.enableUser(username);
+    }
+
 }

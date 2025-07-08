@@ -1,6 +1,7 @@
 package io.github.mouhamethfadal.blogbackend.services.impl;
 
 import io.github.mouhamethfadal.blogbackend.dtos.user.UserDto;
+import io.github.mouhamethfadal.blogbackend.entities.User;
 import io.github.mouhamethfadal.blogbackend.exceptions.UserNotFoundException;
 import io.github.mouhamethfadal.blogbackend.mappers.UserMapper;
 import io.github.mouhamethfadal.blogbackend.repositories.UserRepository;
@@ -33,4 +34,17 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException(username));
     }
 
+    @Override
+    public UserDto enableUser(String username) {
+
+        return userRepository.findByUsername(username)
+                .map(this::enableUser)
+                .map(userMapper::userToUserDto)
+                .orElseThrow(() -> new UserNotFoundException(username));
+    }
+
+    private User enableUser(User user) {
+        user.setEnabled(true);
+        return userRepository.save(user);
+    }
 }
