@@ -18,4 +18,11 @@ public interface UserService {
    * @return a user with the matching username
    */
   UserDto findUserByUsername(String username);
+
+  /**
+   *
+   * @param username the user's username to be enabled
+   * @return the enabled user
+   */
+  UserDto enableUser(String username);
 }
