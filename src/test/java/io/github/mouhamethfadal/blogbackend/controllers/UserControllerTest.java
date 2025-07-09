@@ -3,6 +3,7 @@ package io.github.mouhamethfadal.blogbackend.controllers;
 import io.github.mouhamethfadal.blogbackend.dtos.user.UserDto;
 import io.github.mouhamethfadal.blogbackend.entities.Role;
 import io.github.mouhamethfadal.blogbackend.exceptions.UserNotFoundException;
+import io.github.mouhamethfadal.blogbackend.repositories.UserRepository;
 import io.github.mouhamethfadal.blogbackend.security.JwtAuthenticationFilter;
 import io.github.mouhamethfadal.blogbackend.services.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +24,7 @@ import java.util.Set;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,19 +40,20 @@ class UserControllerTest {
     @SuppressWarnings("unused")
     @MockitoBean
     private UserService userService;
+    @MockitoBean
+    private UserRepository userRepository;
 
-    UserDto user1 = UserDto.builder()
+    UserDto userDto1 = UserDto.builder()
             .username("john_doe")
             .email("john_doe@gmail.com")
             .roles(Set.of(Role.ROLE_USER, Role.ROLE_ADMIN))
             .build();
 
-    UserDto user2 = UserDto.builder()
+    UserDto userDto2 = UserDto.builder()
             .username("ricky")
             .email("ricky@gmail.com")
             .roles(Set.of(Role.ROLE_USER))
             .build();
-
 
     @Nested
     @DisplayName("Test cases for getAllUsers")
@@ -58,13 +61,13 @@ class UserControllerTest {
         @Test
         void getAllUsers_WhenUsersExist_ShouldReturnAllUsers() throws Exception {
             // Arrange
-            when(userService.findAllUsers()).thenReturn(List.of(user1, user2));
+            when(userService.findAllUsers()).thenReturn(List.of(userDto1, userDto2));
 
             // Act & Assert
            mockMvc.perform(get("/api/v1/users"))
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$", hasSize(2)))
-                   .andExpect(jsonPath("$[*].username", containsInAnyOrder(user1.getUsername(), user2.getUsername())));
+                   .andExpect(jsonPath("$[*].username", containsInAnyOrder(userDto1.getUsername(), userDto2.getUsername())));
 
         }
 
@@ -87,22 +90,49 @@ class UserControllerTest {
         @Test
         void getUserByUsername_WhenUserExist_ShouldReturnUser() throws Exception {
             // Arrange
-            when(userService.findUserByUsername(user1.getUsername())).thenReturn(user1);
+            when(userService.findUserByUsername(userDto1.getUsername())).thenReturn(userDto1);
 
             // Act & Assert
-            mockMvc.perform(get("/api/v1/users/" + user1.getUsername()))
+            mockMvc.perform(get("/api/v1/users/" + userDto1.getUsername()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.username", is(user1.getUsername())));
+                    .andExpect(jsonPath("$.username", is(userDto1.getUsername())));
 
 
         }
         @Test
         void getUserByUsername_WhenNoUserExist_ShouldThrowException() throws Exception {
             // Arrange
-            when(userService.findUserByUsername(user1.getUsername())).thenThrow(new UserNotFoundException(user1.getUsername()));
+            when(userService.findUserByUsername(userDto1.getUsername())).thenThrow(new UserNotFoundException(userDto1.getUsername()));
 
             // Act & Assert
-            mockMvc.perform(get("/api/v1/users/" + user1.getUsername()))
+            mockMvc.perform(get("/api/v1/users/" + userDto1.getUsername()))
+                    .andExpect(status().isNotFound());
+        }
+
+    }
+
+    @Nested
+    @DisplayName("enableUser Test Cases")
+    class enableUserTests{
+        @Test
+        void enableUser_WhenUserExist_ShouldEnableUser() throws Exception {
+            // Arrange
+            String username = userDto1.getUsername();
+            when(userService.enableUser(username)).thenReturn(userDto1);
+
+            // Act & Assert
+            mockMvc.perform(put("/api/v1/users/" + username + "/enable"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.username", is(username)));
+        }
+
+        @Test
+        void enableUser_WhenUserDoesNotExist_ShouldThrowException() throws Exception {
+            // Arrange
+            when(userService.enableUser(userDto1.getUsername())).thenThrow(new UserNotFoundException(userDto1.getUsername()));
+
+            //Act & Assert
+            mockMvc.perform(put("/api/v1/users/" + userDto1.getUsername() + "/enable"))
                     .andExpect(status().isNotFound());
         }
 
