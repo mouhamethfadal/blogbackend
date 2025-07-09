@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor
@@ -129,6 +129,52 @@ class UserServiceImplTest {
             assertThatThrownBy(() -> userService.findUserByUsername(username))
                     .isInstanceOf(UserNotFoundException.class)
                     .hasMessage("User with username: " + username + " not found");
+        }
+    }
+
+    @Nested
+    @DisplayName("enableUser Test Cases")
+    class enableUserTests {
+
+        @Test
+        void enableUser_WhenUserExists_ShouldCall_ActivateUserAndUserMapper() {
+            // Arrange
+            when(userRepository.findByUsername(user1.getUsername())).thenReturn(Optional.of(user1));
+            when(userRepository.save(any(User.class))).thenReturn(user1);
+            when(userMapper.userToUserDto(user1)).thenReturn(userDto1);
+
+            // Act
+            assertThatCode(()  -> userService.enableUser(user1.getUsername()) ).doesNotThrowAnyException();
+
+            UserDto userDto = userService.enableUser(user1.getUsername());
+
+            // Assert
+            verify(userMapper, times(2)).userToUserDto(user1);
+            assertThat(userDto).isEqualTo(userDto1);
+        }
+
+        @Test
+        void enableUser_WhenUserDoesNotExist_ShouldThrowException() {
+            // Arrange
+            String username = user1.getUsername();
+            when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThatThrownBy(() -> userService.enableUser(username))
+                    .isInstanceOf(UserNotFoundException.class)
+                    .hasMessageContaining(username);
+        }
+    }
+
+    @Nested
+    @DisplayName("activateUser Test Cases")
+    class activateUserTests {
+        @Test
+        void activateUser_ShouldSetEnabledToTrue() {
+            // Act & Assert
+            userService.activateUser(user1);
+
+            verify(userRepository, times(1)).save(argThat(User::isEnabled));
         }
     }
 }

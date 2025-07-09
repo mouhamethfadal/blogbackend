@@ -38,12 +38,13 @@ public class UserServiceImpl implements UserService {
     public UserDto enableUser(String username) {
 
         return userRepository.findByUsername(username)
-                .map(this::enableUser)
+                .map(this::activateUser)
                 .map(userMapper::userToUserDto)
                 .orElseThrow(() -> new UserNotFoundException(username));
     }
 
-    private User enableUser(User user) {
+    @Override
+    public User activateUser(User user) {
         user.setEnabled(true);
         return userRepository.save(user);
     }
