@@ -1,9 +1,13 @@
 package io.github.mouhamethfadal.blogbackend.services;
 
 import io.github.mouhamethfadal.blogbackend.dtos.user.UserDto;
+import io.github.mouhamethfadal.blogbackend.entities.User;
 
 import java.util.List;
 
+/**
+ * UserService provides methods to handle operations related to User entities.
+ */
 public interface UserService {
   /**
    * This method returns all users registered in the app.
@@ -25,4 +29,11 @@ public interface UserService {
    * @return the enabled user
    */
   UserDto enableUser(String username);
+
+  /**
+   * Activates a user by setting their enabled status to true.
+   * @param user the user entity to be activated
+   * @return the updated user entity after activation and persistence
+   */
+  User activateUser(User user);
 }
