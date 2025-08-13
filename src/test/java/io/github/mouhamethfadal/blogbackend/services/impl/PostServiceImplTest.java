@@ -1,7 +1,11 @@
 package io.github.mouhamethfadal.blogbackend.services.impl;
 
+import io.github.mouhamethfadal.blogbackend.dtos.post.PostRequestDto;
+import io.github.mouhamethfadal.blogbackend.entities.Post;
 import io.github.mouhamethfadal.blogbackend.entities.User;
 import io.github.mouhamethfadal.blogbackend.exceptions.UserNotFoundException;
+import io.github.mouhamethfadal.blogbackend.mappers.PostMapper;
+import io.github.mouhamethfadal.blogbackend.repositories.PostRepository;
 import io.github.mouhamethfadal.blogbackend.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +27,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceImplTest {
@@ -33,13 +37,27 @@ class PostServiceImplTest {
     private Authentication authentication;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private PostRepository postRepository;
+    @Mock
+    private PostMapper postMapper;
 
     @InjectMocks
     private PostServiceImpl postService;
 
     final String testUsername = "john_doe";
+    final String postTitle = "My wonderful blog";
 
     User testUser = User.builder()
+            .username(testUsername)
+            .build();
+    Post testPost = Post.builder()
+            .title(postTitle)
+            .build();
+    PostRequestDto testPostRequestDto = PostRequestDto.builder()
+            .title(postTitle)
+            .build();
+    User user = User.builder()
             .username(testUsername)
             .build();
 
@@ -74,7 +92,7 @@ class PostServiceImplTest {
 
     @Nested
     @DisplayName("getLoggedInUser Test Cases")
-    class getLoggedInUserTests {
+    class GetLoggedInUserTests {
         private Method getLoggedInUser;
 
         @BeforeEach
@@ -123,6 +141,77 @@ class PostServiceImplTest {
 
 
         }
+    }
 
+    @Nested
+    @DisplayName("setPostSlug Test Cases")
+    class SetPostSlugTests {
+        private Method setPostSlug;
+        @BeforeEach
+        void setUp() throws NoSuchMethodException {
+            setPostSlug = PostServiceImpl.class.getDeclaredMethod("setPostSlug", Post.class);
+            setPostSlug.setAccessible(true);
+        }
+
+        @Test
+        void setPostSlug_WhenGivenAPostWithTitle_ShouldSetPostSlug() throws InvocationTargetException, IllegalAccessException {
+
+            // Verify before appending slug
+            assertThat(testPost.getSlug()).isNull();
+
+            // Act
+            Post postWithSlug = (Post) setPostSlug.invoke(postService, testPost);
+
+            // Assert
+            assertThat(postWithSlug.getSlug()).isEqualTo("my-wonderful-blog");
+        }
+    }
+
+    @Nested
+    @DisplayName("setPostAuthor Test Cases")
+    class SetPostAuthorTests {
+        private Method setPostAuthor;
+        @BeforeEach
+        void setUp() throws NoSuchMethodException {
+            setPostAuthor = PostServiceImpl.class.getDeclaredMethod("setPostAuthor", PostRequestDto.class, User.class);
+            setPostAuthor.setAccessible(true);
+        }
+
+        @Test
+        void setPostAuthor_WhenGivenAPostRequestDtoAndUser_ShouldSetPostAuthor() throws InvocationTargetException, IllegalAccessException {
+
+            // Arrange
+            when(postMapper.postRequestDtoToPost(testPostRequestDto)).thenReturn(testPost);
+
+            // Verify before setting author
+            assertThat(postMapper.postRequestDtoToPost(testPostRequestDto).getAuthor()).isNull();
+
+            // Act
+            Post postWithAuthor = (Post) setPostAuthor.invoke(postService, testPostRequestDto, user);
+
+            // Assert
+            assertThat(postWithAuthor.getAuthor()).isEqualTo(testUser);
+        }
+
+    }
+
+    @Nested
+    @DisplayName("savePost Test Cases")
+    class SavePostTests {
+        private Method savePost;
+        @BeforeEach
+        void setUp() throws NoSuchMethodException {
+            savePost = PostServiceImpl.class.getDeclaredMethod("savePost", Post.class);
+            savePost.setAccessible(true);
+        }
+
+        @Test
+        void savePost_WhenGivenAPost_ShouldSavePost() throws InvocationTargetException, IllegalAccessException {
+            // Act
+            savePost.invoke(postService, testPost);
+
+            // Verify
+            verify(postRepository, times(1)).save(testPost);
+        }
     }
 }
