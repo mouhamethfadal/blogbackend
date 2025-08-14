@@ -12,10 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -47,6 +44,7 @@ class PostServiceImplTest {
 
     final String testUsername = "john_doe";
     final String postTitle = "My wonderful blog";
+    final String postSlug = "my-wonderful-blog";
 
     User testUser = User.builder()
             .username(testUsername)
@@ -54,12 +52,25 @@ class PostServiceImplTest {
     Post testPost = Post.builder()
             .title(postTitle)
             .build();
+    Post testPostWithSlug = Post
+            .builder()
+            .title(postTitle)
+            .slug(postSlug)
+            .author(testUser)
+            .build();
     PostRequestDto testPostRequestDto = PostRequestDto.builder()
             .title(postTitle)
             .build();
     User user = User.builder()
             .username(testUsername)
             .build();
+
+    private void mockAuthentication(MockedStatic<SecurityContextHolder> mockedSecurityContextHolder) {
+        mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(testUsername);
+    }
+
 
     @Nested
     @DisplayName("generateSlug Test Cases")
@@ -100,13 +111,6 @@ class PostServiceImplTest {
             getLoggedInUser = PostServiceImpl.class.getDeclaredMethod("getLoggedInUser");
             getLoggedInUser.setAccessible(true);
         }
-
-        private void mockAuthentication(MockedStatic<SecurityContextHolder> mockedSecurityContextHolder) {
-            mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
-            when(securityContext.getAuthentication()).thenReturn(authentication);
-            when(authentication.getName()).thenReturn(testUsername);
-        }
-
         @Test
         void getLoggedInUser_WhenUserIsLoggedInAndFound_ShouldReturnUser() throws InvocationTargetException, IllegalAccessException {
             // Arrange
@@ -136,10 +140,7 @@ class PostServiceImplTest {
                        .extracting(Throwable::getMessage)
                        .asString()
                        .contains(testUsername);
-
             }
-
-
         }
     }
 
@@ -213,5 +214,31 @@ class PostServiceImplTest {
             // Verify
             verify(postRepository, times(1)).save(testPost);
         }
+    }
+
+    @Nested
+    @DisplayName("createPost Test Cases")
+    class CreatePostTests {
+        @Test
+        void createPost_WhenGivenAPost_ShouldOrchestratePrivateMethodsInCorrectOrder() {
+            try(MockedStatic<SecurityContextHolder> mockedSecurityContextHolder = Mockito.mockStatic(SecurityContextHolder.class)) {
+                // Arrange
+                mockAuthentication(mockedSecurityContextHolder);
+                when(userRepository.findByUsername(testUsername)).thenReturn(Optional.of(testUser));
+                when(postMapper.postRequestDtoToPost(testPostRequestDto)).thenReturn(testPost);
+                when(postRepository.save(testPostWithSlug)).thenReturn(testPostWithSlug);
+
+                // Act
+                postService.createPost(testPostRequestDto);
+
+                // Verify interactions in order
+               InOrder inOrder = inOrder(userRepository, postMapper, postRepository);
+               inOrder.verify(userRepository, times(1)).findByUsername(testUsername);
+               inOrder.verify(postMapper, times(1)).postRequestDtoToPost(testPostRequestDto);
+               inOrder.verify(postRepository, times(1)).save(testPostWithSlug);
+            }
+        }
+
+
     }
 }
