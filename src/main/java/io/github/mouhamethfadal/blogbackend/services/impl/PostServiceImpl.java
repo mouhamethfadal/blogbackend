@@ -25,8 +25,9 @@ public class PostServiceImpl implements PostService {
         User user = getLoggedInUser();
 
         Post post = setPostAuthor(postRequestDto, user);
+        Post postWithSlug  = setPostSlug(post);
 
-        return savePost(setPostSlug(post));
+        return savePost(postWithSlug);
     }
 
     private PostResponseDto savePost(Post post) {
