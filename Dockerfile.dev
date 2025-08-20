@@ -1,4 +1,4 @@
-FROM amazoncorretto:21-alpine3.19
+FROM eclipse-temurin:21
 WORKDIR /app
 
 RUN apk add --no-cache curl
