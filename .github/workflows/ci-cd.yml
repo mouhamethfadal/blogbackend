@@ -1,4 +1,4 @@
-name: CI/CD Multi-Stage Pipeline
+name: Blog Backend CI/CD Multi-Stage Pipeline
 
 on:
   push:
@@ -234,11 +234,11 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${SONAR_TOKEN}
 
-  
   build-and-push:
     name: Build and push Docker images
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    needs: sonarcloud-analysis
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v4
