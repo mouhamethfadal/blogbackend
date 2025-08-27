@@ -257,6 +257,19 @@ jobs:
           push: true
           tags: ${{secrets.DOCKERHUB_USERNAME}}/blog-backend:latest
 
+  deploy:
+    name: Trigger Blog Backend deployment
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Trigger deployment repo
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{secrets.DEPLOY_TOKEN}}
+          repository: mouhamethfadal/blog-deployment-repo
+          event-type: deploy
+
   publish-test-results:
     name: Publish Test Results
     runs-on: ubuntu-latest
