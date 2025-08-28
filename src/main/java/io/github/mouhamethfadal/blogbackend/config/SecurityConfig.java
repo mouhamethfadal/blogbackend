@@ -29,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Generated
 public class SecurityConfig {
+    protected static final String[] ALLOWED_ENDPOINTS = {"/actuator/**", "/swagger-ui/**", "/swagger-ui.html", "/api-docs/**"};
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final Environment environment;
     private static final String DEV_PROFILE = "dev";
@@ -73,9 +74,7 @@ public class SecurityConfig {
                 // not cookies. CSRF protection isn't necessary in this context since we're not using session cookies.
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.
-                        requestMatchers("/actuator/**", "/swagger-ui/**", "/swagger-ui.html", "/api-docs/**")
-                        .permitAll()
-                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
+                        requestMatchers(ALLOWED_ENDPOINTS).permitAll()
                         .anyRequest().authenticated());
     }
 
@@ -85,9 +84,8 @@ public class SecurityConfig {
                 // not cookies. CSRF protection isn't necessary in this context since we're not using session cookies.
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**")
-                        .denyAll()
+                        .requestMatchers(ALLOWED_ENDPOINTS).permitAll()
+                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
     }
 
