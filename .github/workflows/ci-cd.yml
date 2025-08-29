@@ -182,6 +182,47 @@ jobs:
             target/jacoco-merged.exec
             target/site/jacoco-merged/
           retention-days: 7
+  publish-test-results:
+    name: Publish Test Results
+    runs-on: ubuntu-latest
+    needs: [ unit-tests, integration-tests ]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download unit test results
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-test-results
+          path: unit-test-results/
+        continue-on-error: true
+
+      - name: Download integration test results
+        uses: actions/download-artifact@v4
+        with:
+          name: integration-test-results
+          path: integration-test-results/
+        continue-on-error: true
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: (!cancelled())
+        with:
+          files: unit-test-results/TEST-*.xml
+          check_name: "Unit Test Results"
+          comment_title: "Unit Test Results"
+          comment_mode: always
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: (!cancelled())
+        with:
+          files: integration-test-results/TEST-*.xml
+          check_name: "Integration Test Results"
+          comment_title: "Integration Test Results"
+          comment_mode: always
 
   sonarcloud-analysis:
     name: SonarCloud Analysis
@@ -260,7 +301,6 @@ jobs:
   deploy:
     name: Trigger Blog Backend deployment
     runs-on: ubuntu-latest
-    needs: build-and-push
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Trigger deployment repo
@@ -269,45 +309,3 @@ jobs:
           token: ${{secrets.DEPLOY_TOKEN}}
           repository: mouhamethfadal/blog-deployment-repo
           event-type: deploy
-
-  publish-test-results:
-    name: Publish Test Results
-    runs-on: ubuntu-latest
-    needs: [ unit-tests, integration-tests ]
-    if: always()
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download unit test results
-        uses: actions/download-artifact@v4
-        with:
-          name: unit-test-results
-          path: unit-test-results/
-        continue-on-error: true
-
-      - name: Download integration test results
-        uses: actions/download-artifact@v4
-        with:
-          name: integration-test-results
-          path: integration-test-results/
-        continue-on-error: true
-
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: (!cancelled())
-        with:
-          files: unit-test-results/TEST-*.xml
-          check_name: "Unit Test Results"
-          comment_title: "Unit Test Results"
-          comment_mode: always
-
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: (!cancelled())
-        with:
-          files: integration-test-results/TEST-*.xml
-          check_name: "Integration Test Results"
-          comment_title: "Integration Test Results"
-          comment_mode: always
