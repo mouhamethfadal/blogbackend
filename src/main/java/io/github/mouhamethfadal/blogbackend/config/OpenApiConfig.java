@@ -45,7 +45,7 @@ import java.util.ArrayList;
                 ),
                 @Server(
                         description = "Production Environment",
-                        url = "https://api.your-domain.com"
+                        url = "https://api.blog.mouhamethfadalaidara.me"
                 )
         },
         security = {
