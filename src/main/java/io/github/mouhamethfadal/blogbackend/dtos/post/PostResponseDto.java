@@ -1,6 +1,7 @@
 package io.github.mouhamethfadal.blogbackend.dtos.post;
 
 import io.github.mouhamethfadal.blogbackend.dtos.user.AuthorDto;
+import io.github.mouhamethfadal.blogbackend.enums.PostStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class PostResponseDto {
     private String content;
     private String slug;
     private AuthorDto author;
+    private PostStatus status;
     private List<String> tags;
     private LocalDateTime publishedDate;
 
