@@ -101,7 +101,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
         if (isDevelopment) {
-            configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+            configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080"));
         } else {
             configuration.setAllowedOrigins(List.of("https://production-domain-to-be-defined.com"));
         }

@@ -14,10 +14,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -102,5 +101,61 @@ public class PostController {
         PostResponseDto createdPost = postService.createPost(postRequestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
+    }
+
+
+    @Operation(
+            summary = "Get all blog posts",
+            description = "Retrieve a list of all blog posts"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Posts retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PostResponseDto.class),
+                            examples = @ExampleObject(
+                                    value = """
+                                            [
+                                              {
+                                                "id": "507f1f77bcf86cd799439011",
+                                                "title": "Getting Started with Spring Boot",
+                                                "description": "A comprehensive guide to building REST APIs with Spring Boot",
+                                                "content": "# Introduction\\n\\nSpring Boot makes it easy to create stand-alone...",
+                                                "slug": "getting-started-with-spring-boot",
+                                                "status": "PUBLISHED",
+                                                "tags": ["spring-boot", "java", "backend"],
+                                                "createdAt": "2025-10-07T10:30:00",
+                                                "updatedAt": "2025-10-07T10:30:00"
+                                              },
+                                              {
+                                                "id": "507f1f77bcf86cd799439012",
+                                                "title": "Introduction to MongoDB",
+                                                "description": "Learn the basics of MongoDB NoSQL database",
+                                                "content": "# MongoDB Basics\\n\\nMongoDB is a document-oriented database...",
+                                                "slug": "introduction-to-mongodb",
+                                                "status": "PUBLISHED",
+                                                "tags": ["mongodb", "database", "nosql"],
+                                                "createdAt": "2025-10-08T14:20:00",
+                                                "updatedAt": "2025-10-08T14:20:00"
+                                              }
+                                            ]
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    ref = "Unauthorized"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    ref = "Forbidden"
+            )
+    })
+    @GetMapping
+    public List<PostResponseDto> getAllPosts() {
+        return postService.getAllPosts();
     }
 }

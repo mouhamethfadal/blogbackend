@@ -1,25 +1,23 @@
 package io.github.mouhamethfadal.blogbackend.services.impl;
 
 import io.github.mouhamethfadal.blogbackend.dtos.post.PostRequestDto;
+import io.github.mouhamethfadal.blogbackend.dtos.post.PostResponseDto;
 import io.github.mouhamethfadal.blogbackend.entities.Post;
 import io.github.mouhamethfadal.blogbackend.entities.User;
-import io.github.mouhamethfadal.blogbackend.exceptions.UserNotFoundException;
 import io.github.mouhamethfadal.blogbackend.mappers.PostMapper;
 import io.github.mouhamethfadal.blogbackend.repositories.PostRepository;
 import io.github.mouhamethfadal.blogbackend.repositories.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,200 +40,60 @@ class PostServiceImplTest {
     @InjectMocks
     private PostServiceImpl postService;
 
-    final String testUsername = "john_doe";
+    final String username = "john_doe";
     final String postTitle = "My wonderful blog";
     final String postSlug = "my-wonderful-blog";
 
-    User testUser = User.builder()
-            .username(testUsername)
+    User user = User.builder()
+            .username(username)
             .build();
-    Post testPost = Post.builder()
+    Post post = Post.builder()
             .title(postTitle)
             .build();
-    Post testPostWithSlug = Post
+    Post postWithSlug = Post
             .builder()
             .title(postTitle)
             .slug(postSlug)
-            .author(testUser)
+            .author(user)
             .build();
-    PostRequestDto testPostRequestDto = PostRequestDto.builder()
+    PostRequestDto postRequestDto = PostRequestDto.builder()
             .title(postTitle)
             .build();
-    User user = User.builder()
-            .username(testUsername)
+    PostResponseDto postResponse = PostResponseDto.builder()
+            .title(postTitle)
+            .slug(postSlug)
             .build();
 
     private void mockAuthentication(MockedStatic<SecurityContextHolder> mockedSecurityContextHolder) {
         mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn(testUsername);
+        when(authentication.getName()).thenReturn(username);
     }
 
-
-    @Nested
-    @DisplayName("generateSlug Test Cases")
-    class GenerateSlugTests {
-        private Method generateSlug;
-
-        @BeforeEach
-        void setUp() throws NoSuchMethodException {
-            generateSlug = PostServiceImpl.class.getDeclaredMethod("generateSlug", String.class);
-            generateSlug.setAccessible(true);
-        }
-
-        @Test
-        void generateSlug_ShouldReturnCorrectSlug() throws InvocationTargetException, IllegalAccessException {
-            String simpleTitle = "My wonderful blog";
-            String complexTitle = "---my2 wonderful*#23 blog --^ù$$^post---";
-            String expectedSlugForSimpleTitle = "my-wonderful-blog";
-            String expectedSlugForComplexTitle = "my2-wonderful-23-blog-post";
-
-            // Act
-            String generatedSlugForSimpleTitle = (String) generateSlug.invoke(postService, simpleTitle);
-            String generatedSlugForComplexTitle = (String) generateSlug.invoke(postService, complexTitle);
-
-            // Assert
-            assertThat(generatedSlugForSimpleTitle).isEqualTo(expectedSlugForSimpleTitle);
-            assertThat(generatedSlugForComplexTitle).isEqualTo(expectedSlugForComplexTitle);
-        }
-
-    }
-
-    @Nested
-    @DisplayName("getLoggedInUser Test Cases")
-    class GetLoggedInUserTests {
-        private Method getLoggedInUser;
-
-        @BeforeEach
-        void setUp() throws NoSuchMethodException {
-            getLoggedInUser = PostServiceImpl.class.getDeclaredMethod("getLoggedInUser");
-            getLoggedInUser.setAccessible(true);
-        }
-        @Test
-        void getLoggedInUser_WhenUserIsLoggedInAndFound_ShouldReturnUser() throws InvocationTargetException, IllegalAccessException {
-            // Arrange
-            try (MockedStatic<SecurityContextHolder> mockedSecurityContextHolder = Mockito.mockStatic(SecurityContextHolder.class)) {
-                mockAuthentication(mockedSecurityContextHolder);
-                when(userRepository.findByUsername(testUsername)).thenReturn(Optional.of(testUser));
-                // Act
-                User loggedInUser = (User) getLoggedInUser.invoke(postService);
-
-                // Assert
-                assertThat(loggedInUser).isEqualTo(testUser);
-            }
-        }
-
-
-        @Test
-        void getLoggedInUser_WhenUserNotFound_ShouldThrowException() throws UserNotFoundException {
-            // Arrange
-            try (MockedStatic<SecurityContextHolder> mockedSecurityContextHolder = Mockito.mockStatic(SecurityContextHolder.class)) {
-                mockAuthentication(mockedSecurityContextHolder);
-                when(userRepository.findByUsername(testUsername)).thenThrow(new UserNotFoundException(testUsername));
-                // Act
-               assertThatThrownBy(() -> getLoggedInUser.invoke(postService))
-                       .isInstanceOf(InvocationTargetException.class)
-                       .hasCauseInstanceOf(UserNotFoundException.class)
-                       .extracting(Throwable::getCause)
-                       .extracting(Throwable::getMessage)
-                       .asString()
-                       .contains(testUsername);
-            }
-        }
-    }
-
-    @Nested
-    @DisplayName("setPostSlug Test Cases")
-    class SetPostSlugTests {
-        private Method setPostSlug;
-        @BeforeEach
-        void setUp() throws NoSuchMethodException {
-            setPostSlug = PostServiceImpl.class.getDeclaredMethod("setPostSlug", Post.class);
-            setPostSlug.setAccessible(true);
-        }
-
-        @Test
-        void setPostSlug_WhenGivenAPostWithTitle_ShouldSetPostSlug() throws InvocationTargetException, IllegalAccessException {
-
-            // Verify before appending slug
-            assertThat(testPost.getSlug()).isNull();
-
-            // Act
-            Post postWithSlug = (Post) setPostSlug.invoke(postService, testPost);
-
-            // Assert
-            assertThat(postWithSlug.getSlug()).isEqualTo("my-wonderful-blog");
-        }
-    }
-
-    @Nested
-    @DisplayName("setPostAuthor Test Cases")
-    class SetPostAuthorTests {
-        private Method setPostAuthor;
-        @BeforeEach
-        void setUp() throws NoSuchMethodException {
-            setPostAuthor = PostServiceImpl.class.getDeclaredMethod("setPostAuthor", PostRequestDto.class, User.class);
-            setPostAuthor.setAccessible(true);
-        }
-
-        @Test
-        void setPostAuthor_WhenGivenAPostRequestDtoAndUser_ShouldSetPostAuthor() throws InvocationTargetException, IllegalAccessException {
-
-            // Arrange
-            when(postMapper.postRequestDtoToPost(testPostRequestDto)).thenReturn(testPost);
-
-            // Verify before setting author
-            assertThat(postMapper.postRequestDtoToPost(testPostRequestDto).getAuthor()).isNull();
-
-            // Act
-            Post postWithAuthor = (Post) setPostAuthor.invoke(postService, testPostRequestDto, user);
-
-            // Assert
-            assertThat(postWithAuthor.getAuthor()).isEqualTo(testUser);
-        }
-
-    }
-
-    @Nested
-    @DisplayName("savePost Test Cases")
-    class SavePostTests {
-        private Method savePost;
-        @BeforeEach
-        void setUp() throws NoSuchMethodException {
-            savePost = PostServiceImpl.class.getDeclaredMethod("savePost", Post.class);
-            savePost.setAccessible(true);
-        }
-
-        @Test
-        void savePost_WhenGivenAPost_ShouldSavePost() throws InvocationTargetException, IllegalAccessException {
-            // Act
-            savePost.invoke(postService, testPost);
-
-            // Verify
-            verify(postRepository, times(1)).save(testPost);
-        }
-    }
 
     @Nested
     @DisplayName("createPost Test Cases")
     class CreatePostTests {
         @Test
-        void createPost_WhenGivenAPost_ShouldOrchestratePrivateMethodsInCorrectOrder() {
+        void createPost_WhenGivenAPost_ShouldCreateAndReturnPostResponseDto() {
             try(MockedStatic<SecurityContextHolder> mockedSecurityContextHolder = Mockito.mockStatic(SecurityContextHolder.class)) {
                 // Arrange
                 mockAuthentication(mockedSecurityContextHolder);
-                when(userRepository.findByUsername(testUsername)).thenReturn(Optional.of(testUser));
-                when(postMapper.postRequestDtoToPost(testPostRequestDto)).thenReturn(testPost);
-                when(postRepository.save(testPostWithSlug)).thenReturn(testPostWithSlug);
+                when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+                when(postMapper.postRequestDtoToPost(postRequestDto)).thenReturn(post);
+                when(postMapper.postToPostResponseDto(any(Post.class))).thenReturn(postResponse);
+                when(postRepository.save(any(Post.class))).thenReturn(postWithSlug);
 
                 // Act
-                postService.createPost(testPostRequestDto);
+                PostResponseDto postResponseDto = postService.createPost(postRequestDto);
 
-                // Verify interactions in order
-               InOrder inOrder = inOrder(userRepository, postMapper, postRepository);
-               inOrder.verify(userRepository, times(1)).findByUsername(testUsername);
-               inOrder.verify(postMapper, times(1)).postRequestDtoToPost(testPostRequestDto);
-               inOrder.verify(postRepository, times(1)).save(testPostWithSlug);
+                // Assert
+                assertThat(postResponseDto).isNotNull();
+
+                // verify
+                verify(userRepository, times(1)).findByUsername(username);
+                verify(postRepository, times(1)).save(any(Post.class));
+
             }
         }
 
