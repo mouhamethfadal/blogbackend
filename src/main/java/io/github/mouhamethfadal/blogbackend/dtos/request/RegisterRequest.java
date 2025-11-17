@@ -8,6 +8,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Data Transfer Object for user registration requests.
+ * Contains user credentials and contact information required for creating a new account.
+ * All fields are validated to ensure data integrity.
+ *
+ * <p>Fields:</p>
+ * <ul>
+ *   <li>{@code username} - The desired username for the new account (must not be blank)</li>
+ *   <li>{@code email} - The email address for the new account (must not be blank and must be valid email format)</li>
+ *   <li>{@code password} - The password for the new account (must have 8+ characters with at least 1 uppercase, 1 lowercase, 1 number, 1 special character)</li>
+ * </ul>
+ */
 @Data
 @Builder
 @NoArgsConstructor

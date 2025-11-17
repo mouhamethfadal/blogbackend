@@ -1,23 +1,31 @@
 package io.github.mouhamethfadal.blogbackend.dtos.post;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
+/**
+ * Data Transfer Object for blog post creation and update requests.
+ * Contains all the required and optional information for creating or modifying a blog post.
+ *
+ * <p>Fields:</p>
+ * <ul>
+ *   <li>{@code title} - The title of the blog post (must not be blank)</li>
+ *   <li>{@code description} - A brief description or excerpt of the post (must not be blank)</li>
+ *   <li>{@code content} - The main content body of the blog post (must not be blank)</li>
+ *   <li>{@code tags} - Optional list of tags for categorizing the post</li>
+ * </ul>
+ */
 @Data
 @Builder
 public class PostRequestDto {
     @NotBlank(message = "Title should not be blank")
-    @Size(min = 5, max = 25, message = "Title should be between 5 and 25 characters")
     private String title;
     @NotBlank(message = "Description should not be blank")
-    @Size(min = 25, max = 100, message = "Description should be between 25 and 100 characters")
     private String description;
     @NotBlank(message = "Content should not be blank")
-    @Size(min = 25, message = "Content should be at least 25 characters")
     private String content;
     private List<String> tags;
 }

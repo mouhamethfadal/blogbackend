@@ -94,14 +94,13 @@ public class SecurityConfig {
         boolean isDevelopment = DEV_PROFILE.equals(Arrays.stream(environment.getActiveProfiles()).findFirst().orElse(DEV_PROFILE));
 
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of());
 
         if (isDevelopment) {
-            configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+            configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080", "http://blog.localhost"));
         } else {
             configuration.setAllowedOrigins(List.of("https://production-domain-to-be-defined.com"));
         }

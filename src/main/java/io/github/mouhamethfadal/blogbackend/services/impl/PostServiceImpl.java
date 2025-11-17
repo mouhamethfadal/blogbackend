@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
@@ -62,5 +64,13 @@ public class PostServiceImpl implements PostService {
                 .replaceAll("[^a-z0-9-]", "-")
                 .replaceAll("-{2,}", "-")
                 .replaceAll("(^-)|(-$)", "");
+    }
+
+    @Override
+    public List<PostResponseDto> getAllPosts() {
+        return postRepository.findAll()
+                .stream()
+                .map(postMapper::postToPostResponseDto)
+                .toList();
     }
 }

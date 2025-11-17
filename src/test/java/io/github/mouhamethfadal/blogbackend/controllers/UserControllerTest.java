@@ -3,7 +3,6 @@ package io.github.mouhamethfadal.blogbackend.controllers;
 import io.github.mouhamethfadal.blogbackend.dtos.user.UserDto;
 import io.github.mouhamethfadal.blogbackend.entities.Role;
 import io.github.mouhamethfadal.blogbackend.exceptions.UserNotFoundException;
-import io.github.mouhamethfadal.blogbackend.repositories.UserRepository;
 import io.github.mouhamethfadal.blogbackend.security.JwtAuthenticationFilter;
 import io.github.mouhamethfadal.blogbackend.services.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -40,8 +39,6 @@ class UserControllerTest {
     @SuppressWarnings("unused")
     @MockitoBean
     private UserService userService;
-    @MockitoBean
-    private UserRepository userRepository;
 
     UserDto userDto1 = UserDto.builder()
             .username("john_doe")
