@@ -42,10 +42,6 @@ import java.util.ArrayList;
                 @Server(
                         description = "Local Environment",
                         url = "http://blog.localhost"
-                ),
-                @Server(
-                        description = "Production Environment",
-                        url = "https://api.blog.mouhamethfadalaidara.me"
                 )
         },
         security = {
