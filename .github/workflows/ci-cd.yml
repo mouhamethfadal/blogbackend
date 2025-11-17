@@ -266,6 +266,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          echo "Using Sonar project key: ${SONAR_PROJECT_KEY}"
           mvn -B  sonar:sonar \
             -DskipTests \
             -Djacoco.skip=false \
@@ -273,7 +274,7 @@ jobs:
             -Dsonar.projectKey=mouhamethfadal_blogbackend \
             -Dsonar.organization=mouhamethfadal \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.token=${SONAR_TOKEN}
+            -Dsonar.login=${SONAR_TOKEN}
 
   build-and-push:
     name: Build and push Docker images
